@@ -11,9 +11,8 @@ def send_email():
     '''
 
     # Настройки SMTP сервера
-    sender = 'Your emial' 
-
-    password = 'zhhf semu rcdm yfis'
+    sender = 'your email' 
+    password = 'your password'
     message = f'Обнаржено оружие\nПожалуйста приймите меры, будте осторожны\nКамера - 1'
 
     # Создание объекта SMTP
