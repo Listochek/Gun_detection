@@ -11,7 +11,7 @@ def send_email():
     '''
 
     # Настройки SMTP сервера
-    sender = 'notificationgun@gmail.com' 
+    sender = 'Your emial' 
 
     password = 'zhhf semu rcdm yfis'
     message = f'Обнаржено оружие\nПожалуйста приймите меры, будте осторожны\nКамера - 1'
