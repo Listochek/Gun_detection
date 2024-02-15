@@ -5,6 +5,7 @@
 # путь до модели которая будет обрабатывать видео
 path_to_model = 'models/medium_gun.pt' 
 # путь до видео
+path_to_videos = 'test_data\\' 
 path_to_video = 'test_data\\test_video_1.mp4'
 # Сохранять ли видео
 saver_videos = True

@@ -1,9 +1,10 @@
 import sys
+import os
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QSlider
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QSlider, QPushButton, QHBoxLayout
 from ultralytics import YOLO
-from path_data import path_to_model, path_to_video, path_to_save, saver_videos
+from path_data import path_to_model, path_to_video, path_to_save, saver_videos, path_to_videos
 from notification import send_email
 import cv2
 import cvzone
@@ -28,19 +29,33 @@ class VideoWidget(QWidget):
         layout.addWidget(self.detected_objects_label)
 
         font = self.detected_objects_label.font()
-        font.setPointSize(16)
+        font.setPointSize(16) 
         self.detected_objects_label.setFont(font)
 
         self.confidence_slider = QSlider(Qt.Horizontal)
         self.confidence_slider.setRange(0, 100)
         self.confidence_slider.setValue(int(CONFIDENCE_THRESHOLD * 100))
         self.confidence_slider.valueChanged.connect(self.update_confidence_threshold)
+
+        self.confidence_slider.setFixedWidth(150)
+
         layout.addWidget(self.confidence_slider)
 
         self.threshold_label = QLabel(self)
         self.update_threshold_label()
         layout.addWidget(self.threshold_label)
+        button_layout = QHBoxLayout()
+        videos_folder = path_to_videos
+        video_files = [f for f in os.listdir(videos_folder) if f.endswith(".mp4")]
 
+        self.video_buttons = []
+        for video_file in video_files:
+            video_button = QPushButton(video_file)
+            video_button.clicked.connect(lambda _, video=video_file: self.play_video(video))
+            layout.addWidget(video_button)
+            self.video_buttons.append(video_button)
+
+        layout.addLayout(button_layout)
         self.cap = cv2.VideoCapture(path_to_video)
         self.cap.set(3, WIDTH_VIDEO)
         self.cap.set(4, HEIGHT_VIDEO)
@@ -103,6 +118,14 @@ class VideoWidget(QWidget):
         font.setPointSize(16)
         self.threshold_label.setFont(font)
         self.threshold_label.setText(f'Мин. порог: {self.confidence_slider.value()}%')
+
+    def play_video(self, video_file):
+        video_path = os.path.join(path_to_videos, video_file)
+        self.cap.release()
+        self.cap = cv2.VideoCapture(video_path)
+        self.cap.set(3, WIDTH_VIDEO)
+        self.cap.set(4, HEIGHT_VIDEO)
+        self.detected_objects_label.setText("Обнаружено: 0")
 
 if __name__ == '__main__':
     print("Gun_tetection>> __main__ запущен!")
