@@ -24,8 +24,6 @@ height_video = 720
 cap.set(3, width_video)
 cap.set(4, height_video)
 
-
-
 def main():
     if saver_videos == True:
         size_video = (width_video, height_video)
