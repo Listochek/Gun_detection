@@ -45,8 +45,8 @@ class VideoWidget(QWidget):
         self.update_threshold_label()
         layout.addWidget(self.threshold_label)
         button_layout = QHBoxLayout()
-        videos_folder = path_to_videos
-        video_files = [f for f in os.listdir(videos_folder) if f.endswith(".mp4")]
+
+        video_files = [f for f in os.listdir(path_to_videos) if f.endswith(".mp4")]
 
         self.video_buttons = []
         for video_file in video_files:
@@ -97,7 +97,6 @@ class VideoWidget(QWidget):
                     cvzone.putTextRect(img, f'{CLASS_NAMES[cls]} {conf}', (max(0, x1), max(0, y1)), colorR=(0, 0, 255))
                     if CLASS_NAMES[cls] == 'gun':
                         gun_counter += 1
-
 
             self.detected_objects_label.setText(f'Обнаружено: {gun_counter}')
 
