@@ -65,7 +65,7 @@ class VideoWidget(QWidget):
 
     def process_frame(self, img):
         gun_counter = 0
-        results = self.model(img, stream=True, verbose=False, iou=IOU_THRESHOLD, conf=CONFIDENCE_THRESHOLD)
+        results = self.model(img, verbose=False, iou=IOU_THRESHOLD, conf=CONFIDENCE_THRESHOLD)
 
         for r in results:
             boxes = r.boxes
@@ -75,11 +75,11 @@ class VideoWidget(QWidget):
                 w, h = x2 - x1, y2 - y1
 
                 if box.conf[0] >= CONFIDENCE_THRESHOLD:
-                    cvzone.cornerRect(img, (x1, y1, w, h), colorR=(0, 0, 255), colorC=(0, 0, 255))
+                    cvzone.cornerRect(img, (x1, y1, w, h), colorR=(0, 40, 255), colorC=(0, 0, 255))
                     conf = math.ceil(box.conf[0] * 100) / 100
 
                     cls = int(box.cls[0])
-                    cvzone.putTextRect(img, f'{CLASS_NAMES[cls]} {conf}', (max(0, x1), max(0, y1)))
+                    cvzone.putTextRect(img, f'{CLASS_NAMES[cls]} {conf}', (max(0, x1), max(0, y1)), colorR=(0, 0, 255))
                     if CLASS_NAMES[cls] == 'gun':
                         gun_counter += 1
 
