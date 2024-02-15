@@ -1,8 +1,9 @@
+# Импорт необходимых библиотек
 import sys
 import os
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QSlider, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSlider, QPushButton
 from ultralytics import YOLO
 from path_data import path_to_model, path_to_video, path_to_save, saver_videos, path_to_videos
 from notification import send_email
@@ -10,64 +11,83 @@ import cv2
 import cvzone
 import math
 
+# Константы и настройки
 CLASS_NAMES = ['gun']
 WIDTH_VIDEO = 1280
 HEIGHT_VIDEO = 720
 IOU_THRESHOLD = 0.4
 CONFIDENCE_THRESHOLD = 0.5
 
+# Класс виджета для обработки видео
 class VideoWidget(QWidget):
     def __init__(self):
         print("Gun_tetection>> Запуск класса...")
         super().__init__()
 
+            #-- Инициализация компонентов UI --#
+        # Создание виджета для отображения видеокадров
         self.label = QLabel(self)
         layout = QVBoxLayout(self)
         layout.addWidget(self.label)
 
+        # Создание виджета для отображения количества обнаруженных объектов
         self.detected_objects_label = QLabel(self)
         layout.addWidget(self.detected_objects_label)
 
+        # Установка шрифта для метки с количеством объектов
         font = self.detected_objects_label.font()
         font.setPointSize(16) 
         self.detected_objects_label.setFont(font)
 
+        # Создание ползунка для управления минимальным порогом уверенности
         self.confidence_slider = QSlider(Qt.Horizontal)
         self.confidence_slider.setRange(0, 100)
         self.confidence_slider.setValue(int(CONFIDENCE_THRESHOLD * 100))
         self.confidence_slider.valueChanged.connect(self.update_confidence_threshold)
 
+        # Установка фиксированной ширины ползунка
         self.confidence_slider.setFixedWidth(150)
 
+        # Добавление ползунка к вертикальному лейауту
         layout.addWidget(self.confidence_slider)
 
+        # Создание метки для отображения текущего порога уверенности
         self.threshold_label = QLabel(self)
         self.update_threshold_label()
         layout.addWidget(self.threshold_label)
+
+        # Горизонтальный лейаут для кнопок видео
         button_layout = QHBoxLayout()
 
+        # Динамическое добавление кнопок для каждого видео в папке
         video_files = [f for f in os.listdir(path_to_videos) if f.endswith(".mp4")]
-
         self.video_buttons = []
         for video_file in video_files:
             video_button = QPushButton(video_file)
             video_button.clicked.connect(lambda _, video=video_file: self.play_video(video))
-            layout.addWidget(video_button)
+            button_layout.addWidget(video_button)
             self.video_buttons.append(video_button)
 
+        # Добавление горизонтального лейаута в основной вертикальный лейаут
         layout.addLayout(button_layout)
+
+        # Инициализация переменных для работы с видео
         self.cap = cv2.VideoCapture(path_to_video)
         self.cap.set(3, WIDTH_VIDEO)
         self.cap.set(4, HEIGHT_VIDEO)
 
+        # Инициализация таймера для обновления кадров
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
         self.timer.start(30)
 
+        # Инициализация модели YOLO
         self.model = YOLO(path_to_model)
 
+        # Установка заголовка окна
         self.setWindowTitle("Gun_Detector")
 
+    # Метод для обновления кадра
     def update_frame(self):
         success, img = self.cap.read()
         if success:
@@ -77,7 +97,7 @@ class VideoWidget(QWidget):
                 fourcc = cv2.VideoWriter_fourcc(*'XVID')
                 out = cv2.VideoWriter(path_to_save, fourcc, 30.0, size_video)
 
-
+    # Метод для обработки кадра
     def process_frame(self, img):
         gun_counter = 0
         results = self.model(img, verbose=False, iou=IOU_THRESHOLD, conf=CONFIDENCE_THRESHOLD)
@@ -107,17 +127,20 @@ class VideoWidget(QWidget):
             pixmap = QPixmap.fromImage(q_img)
             self.label.setPixmap(pixmap)
 
+    # Метод для обновления порога уверенности
     def update_confidence_threshold(self, value):
         global CONFIDENCE_THRESHOLD
         CONFIDENCE_THRESHOLD = value / 100.0
         self.update_threshold_label()
 
+    # Метод для обновления метки порога
     def update_threshold_label(self):
         font = self.threshold_label.font()
         font.setPointSize(16)
         self.threshold_label.setFont(font)
         self.threshold_label.setText(f'Мин. порог: {self.confidence_slider.value()}%')
 
+    # Метод для воспроизведения выбранного видео
     def play_video(self, video_file):
         video_path = os.path.join(path_to_videos, video_file)
         self.cap.release()
@@ -126,6 +149,7 @@ class VideoWidget(QWidget):
         self.cap.set(4, HEIGHT_VIDEO)
         self.detected_objects_label.setText("Обнаружено: 0")
 
+# Основной блок кода для запуска приложения
 if __name__ == '__main__':
     print("Gun_tetection>> __main__ запущен!")
     app = QApplication(sys.argv)
