@@ -140,11 +140,6 @@ class VideoWidget(QWidget):
                             #send_email #отправка уведомления на почту
                             gun_counter = 0
 
-                    
-                        
-
-
-
             self.detected_objects_label.setText(f'Обнаружено: {gun_counter}')
 
             height, width, channel = img.shape
@@ -153,8 +148,6 @@ class VideoWidget(QWidget):
 
             pixmap = QPixmap.fromImage(q_img)
             self.label.setPixmap(pixmap)
-
-
 
     # Метод для обновления порога уверенности
     def update_confidence_threshold(self, value):
