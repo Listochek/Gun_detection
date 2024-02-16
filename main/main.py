@@ -16,8 +16,7 @@ from notification import send_email
 import cv2
 import cvzone
 import math
-import supervision as sv
-import numpy as np
+
 
 # Константы и настройки
 CLASS_NAMES = ['gun']
@@ -29,7 +28,7 @@ CONFIDENCE_THRESHOLD = 0.5
 # Класс виджета для обработки видео
 class VideoWidget(QWidget):
     def __init__(self):
-        print("Gun_tetection>> Запуск класса...")
+        print("Gun_detection>> Запуск класса...")
         super().__init__()
 
             #-- Инициализация компонентов UI --#
@@ -176,9 +175,9 @@ class VideoWidget(QWidget):
 # Основной блок кода для запуска приложения
 
 if __name__ == '__main__':
-    print("Gun_tetection>> __main__ запущен!")
+    print("Gun_detection>> __main__ запущен!")
     app = QApplication(sys.argv)
     window = VideoWidget()
     window.show()
     sys.exit(app.exec_())
-    print("Gun_tetection>> __main__ закончен!")
+    print("Gun_detection>> __main__ закончен!")
