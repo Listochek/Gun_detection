@@ -1,3 +1,9 @@
+import sys
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QSlider
+from ultralytics import YOLO
+from path_data import path_to_model, path_to_video, path_to_save, saver_videos
 # Импорт необходимых библиотек
 import sys
 import os
@@ -10,6 +16,8 @@ from notification import send_email
 import cv2
 import cvzone
 import math
+import supervision as sv
+import numpy as np
 
 # Константы и настройки
 CLASS_NAMES = ['gun']
@@ -100,7 +108,10 @@ class VideoWidget(QWidget):
     # Метод для обработки кадра
     def process_frame(self, img):
         gun_counter = 0
+        
+        clarity = 0.2 #коффицент прозрачности выделяемого ббоксика
         results = self.model(img, verbose=False, iou=IOU_THRESHOLD, conf=CONFIDENCE_THRESHOLD)
+
 
         for r in results:
             boxes = r.boxes
@@ -110,13 +121,29 @@ class VideoWidget(QWidget):
                 w, h = x2 - x1, y2 - y1
 
                 if box.conf[0] >= CONFIDENCE_THRESHOLD:
-                    cvzone.cornerRect(img, (x1, y1, w, h), colorR=(0, 40, 255), colorC=(0, 0, 255))
-                    conf = math.ceil(box.conf[0] * 100) / 100
-
                     cls = int(box.cls[0])
-                    cvzone.putTextRect(img, f'{CLASS_NAMES[cls]} {conf}', (max(0, x1), max(0, y1)), colorR=(0, 0, 255))
-                    if CLASS_NAMES[cls] == 'gun':
+                    overlay = img.copy()
+                    cvzone.cornerRect(img, (x1, y1, w, h), colorR=(0, 0, 255), colorC=(0, 0, 255)) # выделение рамки ббокса
+                    cv2.rectangle(overlay, (x1, y1, w, h), thickness=cv2.FILLED, color=(10, 10, 150)) # закрашивание ббоксика
+                    cv2.addWeighted(overlay, clarity, img, 1 - clarity, 0, img) # наложение закрашенной области
+
+                    conf = math.ceil(box.conf[0] * 100) #точность predicta модели
+
+                    cvzone.putTextRect(img, f'{CLASS_NAMES[cls]} {conf}%', # текст надпеси у ббокса
+                                       (max(0, x1), max(0, y1)), # расположение надписи
+                                       colorR=(0, 0, 255), #цвет фона надписи
+                                       scale=2, thickness=2 )# ширина и высота надписи
+                    
+                    if CLASS_NAMES[cls] == 'gun': # счетчик кадров с оружием 
                         gun_counter += 1
+                        if gun_counter == 20:
+                            #send_email #отправка уведомления на почту
+                            gun_counter = 0
+
+                    
+                        
+
+
 
             self.detected_objects_label.setText(f'Обнаружено: {gun_counter}')
 
@@ -127,11 +154,14 @@ class VideoWidget(QWidget):
             pixmap = QPixmap.fromImage(q_img)
             self.label.setPixmap(pixmap)
 
+
+
     # Метод для обновления порога уверенности
     def update_confidence_threshold(self, value):
         global CONFIDENCE_THRESHOLD
         CONFIDENCE_THRESHOLD = value / 100.0
         self.update_threshold_label()
+
 
     # Метод для обновления метки порога
     def update_threshold_label(self):
@@ -139,6 +169,7 @@ class VideoWidget(QWidget):
         font.setPointSize(16)
         self.threshold_label.setFont(font)
         self.threshold_label.setText(f'Мин. порог: {self.confidence_slider.value()}%')
+
 
     # Метод для воспроизведения выбранного видео
     def play_video(self, video_file):
@@ -150,6 +181,7 @@ class VideoWidget(QWidget):
         self.detected_objects_label.setText("Обнаружено: 0")
 
 # Основной блок кода для запуска приложения
+
 if __name__ == '__main__':
     print("Gun_tetection>> __main__ запущен!")
     app = QApplication(sys.argv)
