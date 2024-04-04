@@ -1,9 +1,3 @@
-import sys
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QSlider
-from ultralytics import YOLO
-from path_data import path_to_model, path_to_video, path_to_save, saver_videos
 # Импорт необходимых библиотек
 import sys
 import os
