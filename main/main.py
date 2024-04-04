@@ -167,7 +167,6 @@ class VideoWidget(QWidget):
         self.detected_objects_label.setText("Обнаружено: 0")
 
 # Основной блок кода для запуска приложения
-
 if __name__ == '__main__':
     print("Gun_detection>> __main__ запущен!")
     app = QApplication(sys.argv)
