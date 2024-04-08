@@ -3,7 +3,7 @@ import sys
 import os
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSlider, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSlider, QPushButton, QSizePolicy
 from ultralytics import YOLO
 from path_data import path_to_model, path_to_video, path_to_save, saver_videos, path_to_videos
 from notification import send_email
@@ -24,12 +24,46 @@ class VideoWidget(QWidget):
     def __init__(self):
         print("Gun_detection>> Запуск класса...")
         super().__init__()
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #F0F0F0;
+                color: #333333;
+                font-family: 'Arial';
+                font-size: 12px;
+            }
+            QLabel {
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #E6E6E6;
+                border: 1px solid #BDBDBD;
+                padding: 5px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #D0D0D0;
+            }
+            QSlider::handle:horizontal {
+                background-color: #BDBDBD;
+                border: 1px solid #9E9E9E;
+                width: 18px;
+                margin: -2px 0; 
+                border-radius: 3px;
+            }
+            QSlider::groove:horizontal {
+                border: 1px solid #BDBDBD;
+                height: 8px;
+                background: #E6E6E6;
+                margin: 2px 0;
+            }
+        """)
 
-            #-- Инициализация компонентов UI --#
         # Создание виджета для отображения видеокадров
         self.label = QLabel(self)
         layout = QVBoxLayout(self)
         layout.addWidget(self.label)
+        self.label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # Создание виджета для отображения количества обнаруженных объектов
         self.detected_objects_label = QLabel(self)
@@ -64,7 +98,8 @@ class VideoWidget(QWidget):
         video_files = [f for f in os.listdir(path_to_videos) if f.endswith(".mp4")]
         self.video_buttons = []
         for video_file in video_files:
-            video_button = QPushButton(video_file)
+            video_button_name = os.path.splitext(video_file)[0]  # Убираем расширение файла
+            video_button = QPushButton(video_button_name)   
             video_button.clicked.connect(lambda _, video=video_file: self.play_video(video))
             button_layout.addWidget(video_button)
             self.video_buttons.append(video_button)

@@ -3,7 +3,7 @@
 """ ФАЙЛ ДЛЯ УДОБНОЙ РАБОТЫ С ПУТЯМИ"""
 
 # путь до модели которая будет обрабатывать видео
-path_to_model = 'models/med_gun_200.pt' 
+path_to_model = 'models/medium_gun.pt' 
 
 # путь до видео
 path_to_videos = 'test_data\\' 
