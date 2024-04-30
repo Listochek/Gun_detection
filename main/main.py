@@ -6,10 +6,13 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSlider, QPushButton, QSizePolicy
 from ultralytics import YOLO
 from path_data import path_to_model, path_to_video, path_to_save, saver_videos, path_to_videos
-from notification import send_email
 import cv2
 import cvzone
 import math
+
+
+from notification import send_email
+from notification_TG import send_message_to_users
 
 
 # Константы и настройки
@@ -165,11 +168,17 @@ class VideoWidget(QWidget):
                     if CLASS_NAMES[cls] == 'gun': # счетчик кадров с оружием 
                         gun_counter += 1
                         if gun_counter == 20:
+                                gun_counter = 0
                             #send_email #отправка уведомления на почту
-                            gun_counter = 0
 
+                                """
+                # ПРОТЕСТИТЬ ФУНКЦИЮ С ОТРПАВКОЙ УВЕДОВ В ТГ
+                            #send_message_to_users отправка уведомлений в телеграмм
+                # ПРОТЕСТИТЬ ФУНКЦИЮ С ОТРПАВКОЙ УВЕДОВ В ТГ
+                                """
+                        
             self.detected_objects_label.setText(f'Обнаружено: {gun_counter}')
-
+    
             height, width, channel = img.shape
             bytes_per_line = 3 * width
             q_img = QImage(img.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
